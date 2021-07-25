@@ -12,7 +12,7 @@
     "build-ts": "./node_modules/.bin/tsc --p tsconfig-build.json",
     "test": "jest --passWithNoTests --silent --noStackTrace --runInBand",
     "test:ci": "npm test -- --coverage",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release --branches main"
   },
   "repository": {
     "type": "git",
