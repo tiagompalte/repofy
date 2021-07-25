@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "check": "npx npm-check -s -u",
+    "commit": "git-cz",
     "build": "npm run rimraf && npm run build-ts",
     "rimraf": "./node_modules/.bin/rimraf dist",
     "build-ts": "./node_modules/.bin/tsc --p tsconfig-build.json",
@@ -34,6 +35,7 @@
     "@types/node": "^14.6.4",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.8.1",
     "eslint-config-standard-with-typescript": "^16.0.0",
     "eslint-plugin-import": "^2.2.0",
@@ -45,10 +47,15 @@
     "jest": "^26.4.2",
     "lint-staged": "^10.3.0",
     "rimraf": "^3.0.2",
+    "semantic-release": "^17.4.4",
     "supertest": "^4.0.2",
     "ts-jest": "^26.3.0",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.10",
-    "semantic-release": "^17.4.4"
+    "typescript": "^3.9.10"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
