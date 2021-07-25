@@ -1,0 +1,6 @@
+export { RepositoryError } from './repository-error'
+export { ValidationError } from './validation-error'
+export { MissingIdError } from './missing-id-error'
+export { VersionRepositoryError } from './version-repository-error'
+export { InvalidIdError } from './invalid-id-error'
+export { RegisterNotFoundError } from './register-not-found-error'
