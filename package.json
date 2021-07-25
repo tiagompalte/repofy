@@ -1,6 +1,6 @@
 {
   "name": "repofy",
-  "version": "0.0.1",
+  "version": "0.0.0-development",
   "description": "ODM/ORM for Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,11 +10,12 @@
     "rimraf": "./node_modules/.bin/rimraf dist",
     "build-ts": "./node_modules/.bin/tsc --p tsconfig-build.json",
     "test": "jest --passWithNoTests --silent --noStackTrace --runInBand",
-    "test:ci": "npm test -- --coverage"
+    "test:ci": "npm test -- --coverage",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tiagompalte/repofy.git"
+    "url": "https://github.com/tiagompalte/repofy.git"
   },
   "author": "tiagompalte",
   "license": "MIT",
@@ -47,6 +48,7 @@
     "supertest": "^4.0.2",
     "ts-jest": "^26.3.0",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.10"
+    "typescript": "^3.9.10",
+    "semantic-release": "^17.4.4"
   }
 }
