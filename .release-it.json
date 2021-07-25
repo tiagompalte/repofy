@@ -1,7 +1,6 @@
 {
   "hooks": {
     "after:bump": "npm run build",
-    "before:npm:release": "echo \"//verdaccio.fswise.com.br/:_authToken=$NPM_AUTH_TOKEN\" > .npmrc",
     "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}"
   },
   "git": {
@@ -16,7 +15,7 @@
     "ignoreVersion": false,
     "skipChecks": true
   },
-  "gitlab": {
+  "github": {
     "release": true
   }
 }
