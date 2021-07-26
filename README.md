@@ -1,2 +1,2 @@
 # repofy
-Universal ODM/ORM for Node.js
+ODM/ORM for Node.js
