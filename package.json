@@ -4,6 +4,12 @@
   "description": "ODM/ORM for Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
     "check": "npx npm-check -s -u",
     "commit": "git-cz",
