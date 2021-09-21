@@ -21,7 +21,9 @@
     "semantic-release": "semantic-release"
   },
   "release": {
-    "branches": ["main"]
+    "branches": [
+      "main"
+    ]
   },
   "repository": {
     "type": "git",
@@ -35,7 +37,7 @@
   "homepage": "https://github.com/tiagompalte/repofy#readme",
   "dependencies": {
     "assert": "^2.0.0",
-    "mongoose": "5.12.5"
+    "mongoose": "^5.13.9"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^2.0.1",

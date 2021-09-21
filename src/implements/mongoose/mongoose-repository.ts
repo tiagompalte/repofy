@@ -1,4 +1,4 @@
-import { Aggregate, Document, Model, Query, Types } from 'mongoose'
+import { Aggregate, Document, Model, Types } from 'mongoose'
 import {
   BaseEntity,
   Comparator,
@@ -26,7 +26,8 @@ import { TimestampConfig } from './options/timestamp-config'
 
 export abstract class MongooseRepository<T extends Document, V, U extends BaseEntity<V>> implements Repository<V, U> {
   constructor (protected readonly doc: Model<T>,
-    protected readonly timestampConfig: TimestampConfig) { }
+    protected readonly timestampConfig: TimestampConfig) {
+  }
 
   protected static prepareKeys (doc: any): any {
     if (!doc) {
@@ -79,7 +80,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     return list
   }
 
-  protected async preparePopulate (find: Query<T[], T> | Query<T, T>, populate: string | string[]): Promise<any> {
+  protected async preparePopulate (find: any, populate: string | string[]): Promise<any> {
     const list = MongooseRepository.convertStringToArray(populate)
 
     for (const pop of list) {
@@ -242,7 +243,10 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     const where: any = {}
     if (filter) {
       for (const command of filter.command) {
-        const { operator, comparator } = command
+        const {
+          operator,
+          comparator
+        } = command
         if (operator === LogicalOperatorEnum.NOT) {
           where[LogicalOperatorMongooseEnum[operator]] =
             Array.isArray(comparator) ? this.comparatorToWhere(comparator[0]) : this.comparatorToWhere(comparator)
@@ -412,8 +416,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
 
       const obj = MongooseRepository.prepareKeys(doc)
 
-      const listSaved = await this.doc.insertMany([obj])
-      const docSaved = listSaved[0]
+      const docSaved = await this.doc.create(obj)
 
       if (populate) {
         return this.findById(docSaved.id, populate)
@@ -432,27 +435,27 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     }
   }
 
-  async insertMany (docs: U[], populate?: string | string[]): Promise<U[]> {
-    try {
-      docs.forEach(d => delete d.id)
-      const listDocs = docs.map(doc => MongooseRepository.prepareKeys(doc))
-
-      const list = await this.doc.insertMany(listDocs)
-
-      const listRet: U[] = []
-      if (populate) {
-        for (const doc of list) {
-          listRet.push(await this.findById(doc._id, populate))
-        }
-      } else {
-        listRet.push(...list.map(l => this.convertDocToObj(l)))
-      }
-
-      return listRet
-    } catch (e) {
-      throw new RepositoryError('Erro ao inserir vários registros: '.concat(e))
-    }
-  }
+  // async insertMany (docs: U[], populate?: string | string[]): Promise<U[]> {
+  //   try {
+  //     docs.forEach(d => delete d.id)
+  //     const listDocs = docs.map(doc => MongooseRepository.prepareKeys(doc))
+  //
+  //     const list = await this.doc.insertMany(listDocs)
+  //
+  //     const listRet: U[] = []
+  //     if (populate) {
+  //       for (const doc of list) {
+  //         listRet.push(await this.findById(doc._id, populate))
+  //       }
+  //     } else {
+  //       listRet.push(...list.map(l => this.convertDocToObj(l)))
+  //     }
+  //
+  //     return listRet
+  //   } catch (e) {
+  //     throw new RepositoryError('Erro ao inserir vários registros: '.concat(e))
+  //   }
+  // }
 
   async update (id: V, doc: U, populate?: string | string[], includeAll = false): Promise<U> {
     if (!id) {
