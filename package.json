@@ -8,7 +8,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "check": "npx npm-check -s -u",
