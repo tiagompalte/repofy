@@ -14,7 +14,7 @@ export interface Repository<U, T extends BaseEntity<U>> {
   findById(id: U, populate?: string | string[], includeAll?: boolean): Promise<T>
   paged(first?: number, pageSize?: number, filter?: Filter, populate?: string | string[], sort?: Sort | Sort[], includeAll?: boolean): Promise<ResultPaged<T>>
   insert(doc: T, populate?: string | string[]): Promise<T>
-  // insertMany(docs: T[], populate?: string | string[]): Promise<T[]>
+  insertMany(docs: T[], populate?: string | string[]): Promise<T[]>
   update(id: U, doc: T, populate?: string | string[], includeAll?: boolean): Promise<T>
   delete(id: U, includeAll?: boolean): Promise<void>
   deleteMany(filter?: Filter, includeAll?: boolean): Promise<void>

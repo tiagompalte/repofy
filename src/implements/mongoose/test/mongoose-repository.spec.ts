@@ -53,40 +53,42 @@ describe('Mongoose Repository', () => {
   let docsSaved: Test[] = []
   let docsSavedWithoutAtivoFalse: Test[] = []
 
-  beforeEach(async () => {
-    connection = await mongoose.connect(
-      process.env.MONGO_URL,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      })
+  beforeAll(async () => {
+    connection = await mongoose.connect(process.env.MONGO_URL)
     db = connection.connection.db
-    await db.createCollection(COLLECTION)
-    const listInserted = await db.collection(COLLECTION).insertMany(docs.map(d => { return { ...d, __v: 0 } }))
-    listInserted.ops.forEach((d: any) => {
-      const doc: any = {
-        id: d._id.toHexString(),
-        nome: d.nome,
-        ordem: d.ordem,
-        data: d.data,
-        versao: d.__v || 0
+  })
+
+  beforeEach(async () => {
+    const listInserted = await db.collection(COLLECTION).insertMany(docs.map(d => {
+      return {
+        ...d,
+        __v: 0
       }
-      if (d.ativo !== undefined) {
-        doc.ativo = d.ativo
+    }))
+    for (let i = 0; i < docs.length; i++) {
+      const doc: any = {
+        id: listInserted.insertedIds[i].toHexString(),
+        nome: docs[i].nome,
+        ordem: docs[i].ordem,
+        data: docs[i].data,
+        versao: 0
+      }
+      if (docs[i].ativo !== undefined) {
+        doc.ativo = docs[i].ativo
       }
       docsSaved.push(doc)
-    })
+    }
 
     docsSavedWithoutAtivoFalse = docsSaved.filter(d => d.ativo === undefined || d.ativo)
   })
 
   afterEach(async () => {
     docsSaved = []
-    await db.dropCollection(COLLECTION)
-    await connection.disconnect()
+    await db.collection(COLLECTION).deleteMany()
   })
 
   afterAll(async () => {
+    await connection.disconnect()
     await mongoose.connection.close()
   })
 
@@ -117,7 +119,11 @@ describe('Mongoose Repository', () => {
   })
 
   test('inserir um registro', async () => {
-    const newDoc: Test = { nome: 'Teste Novo', ordem: 100, data: new Date() }
+    const newDoc: Test = {
+      nome: 'Teste Novo',
+      ordem: 100,
+      data: new Date()
+    }
     const newObj = await TestRepository.insert(newDoc)
     expect(newObj.nome).toBe(newDoc.nome)
     expect(new Date(newObj.data)).toStrictEqual(newDoc.data)
@@ -128,7 +134,11 @@ describe('Mongoose Repository', () => {
   })
 
   test('retornar exceção ao inserir registro inválido', async () => {
-    const newDoc: Test = { nome: null, ordem: 0, data: new Date() }
+    const newDoc: Test = {
+      nome: null,
+      ordem: 0,
+      data: new Date()
+    }
     await expect(TestRepository.insert(newDoc)).rejects.toEqual(
       new ValidationError('Erro ao inserir documento: Nome não informado'))
   })
@@ -160,7 +170,10 @@ describe('Mongoose Repository', () => {
   })
 
   test('obter lista paginada dos registros', async () => {
-    const sort: Sort = { field: 'ordem', direction: DirectionEnum.ASC }
+    const sort: Sort = {
+      field: 'ordem',
+      direction: DirectionEnum.ASC
+    }
     const listPaged = await TestRepository.paged(0, 2, null, null, sort)
     expect(listPaged).not.toBeNull()
     expect(listPaged.content).toStrictEqual(docsSaved.slice(0, 2))
@@ -170,7 +183,10 @@ describe('Mongoose Repository', () => {
 
   test('obter lista paginada dos registros passando o filter', async () => {
     const filter = new Filter().and(Comparator.lte('ordem', 2))
-    const sort: Sort = { field: 'ordem', direction: DirectionEnum.ASC }
+    const sort: Sort = {
+      field: 'ordem',
+      direction: DirectionEnum.ASC
+    }
     const listPaged = await TestRepository.paged(0, 2, filter, null, sort)
     expect(listPaged).not.toBeNull()
     expect(listPaged.content).toStrictEqual(docsSaved.slice(0, 2))
@@ -192,7 +208,11 @@ describe('Mongoose Repository', () => {
 
   test('deve inserir documento utilizando a função upsert', async () => {
     const filter = new Filter().and(Comparator.eq('ordem', 99))
-    const doc: Test = { nome: 'Teste inserido', ordem: 99, data: new Date() }
+    const doc: Test = {
+      nome: 'Teste inserido',
+      ordem: 99,
+      data: new Date()
+    }
     const docSaved = await TestRepository.upsert(doc, filter)
 
     expect(docSaved.nome).toBe(doc.nome)
@@ -451,5 +471,24 @@ describe('Mongoose Repository', () => {
         campoOr1: { $eq: true }
       }]
     })
+  })
+
+  test('deve inserir vários registros', async () => {
+    const list = await TestRepository.insertMany([{
+      nome: 'Inserindo vários',
+      ordem: 20,
+      data: new Date()
+    }, {
+      nome: 'Teste vários 2',
+      ordem: 21,
+      data: new Date()
+    }, {
+      nome: 'Teste vários 3',
+      ordem: 22,
+      data: new Date()
+    }])
+
+    expect(list).not.toBeNull()
+    expect(list.length).toBe(3)
   })
 })

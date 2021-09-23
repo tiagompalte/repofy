@@ -33,4 +33,4 @@ class TestRepository extends MongooseRepository<TestDocument, string, Test> impl
   }
 }
 
-export default new TestRepository(model<TestDocument>('test', testSchema, 'tests'), timestampsPtBR)
+export default new TestRepository(model<TestDocument>('test', testSchema, 'tests', true), timestampsPtBR)

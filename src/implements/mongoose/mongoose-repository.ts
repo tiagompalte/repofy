@@ -416,11 +416,15 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
 
       const obj = MongooseRepository.prepareKeys(doc)
 
-      const docSaved = await this.doc.create(obj)
-
-      if (populate) {
-        return this.findById(docSaved.id, populate)
+      const list = MongooseRepository.convertStringToArray(populate)
+      let populateMongoose: string[]
+      for (const pop of list) {
+        populateMongoose = MongooseRepository.populateOptions(pop.split('.'))
       }
+
+      const [docSaved] = await this.doc.insertMany(obj, {
+        populate: populateMongoose
+      }) as any
 
       return this.convertDocToObj(docSaved)
     } catch (e) {
@@ -435,27 +439,27 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     }
   }
 
-  // async insertMany (docs: U[], populate?: string | string[]): Promise<U[]> {
-  //   try {
-  //     docs.forEach(d => delete d.id)
-  //     const listDocs = docs.map(doc => MongooseRepository.prepareKeys(doc))
-  //
-  //     const list = await this.doc.insertMany(listDocs)
-  //
-  //     const listRet: U[] = []
-  //     if (populate) {
-  //       for (const doc of list) {
-  //         listRet.push(await this.findById(doc._id, populate))
-  //       }
-  //     } else {
-  //       listRet.push(...list.map(l => this.convertDocToObj(l)))
-  //     }
-  //
-  //     return listRet
-  //   } catch (e) {
-  //     throw new RepositoryError('Erro ao inserir vários registros: '.concat(e))
-  //   }
-  // }
+  async insertMany (docs: U[], populate?: string | string[]): Promise<U[]> {
+    try {
+      docs.forEach(d => delete d.id)
+      const listDocs = docs.map(doc => MongooseRepository.prepareKeys(doc))
+
+      const list = (await this.doc.insertMany(listDocs)) as any
+
+      const listRet: U[] = []
+      if (populate) {
+        for (const doc of list) {
+          listRet.push(await this.findById(doc._id, populate))
+        }
+      } else {
+        listRet.push(...list.map((l: T) => this.convertDocToObj(l)))
+      }
+
+      return listRet
+    } catch (e) {
+      throw new RepositoryError('Erro ao inserir vários registros: '.concat(e))
+    }
+  }
 
   async update (id: V, doc: U, populate?: string | string[], includeAll = false): Promise<U> {
     if (!id) {

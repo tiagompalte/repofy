@@ -37,7 +37,7 @@
   "homepage": "https://github.com/tiagompalte/repofy#readme",
   "dependencies": {
     "assert": "^2.0.0",
-    "mongoose": "^5.13.9"
+    "mongoose": "^6.0.7"
   },
   "devDependencies": {
     "@shelf/jest-mongodb": "^2.0.1",
