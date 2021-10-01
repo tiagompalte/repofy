@@ -545,6 +545,19 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     }
   }
 
+  async updateMany (filter: Filter, doc: U, populate?: string | string[], includeAll?: boolean): Promise<U[]> {
+    const list = await this.find(filter, null, null, includeAll)
+    const ret: U[] = []
+    for (const docDb of list) {
+      try {
+        ret.push(await this.update(docDb.id, doc, populate, includeAll))
+      } catch (e) {
+        console.error(`Erro ao atualizar documento: ${String(docDb.id)}`, e)
+      }
+    }
+    return ret
+  }
+
   async count (filter?: Filter, includeAll = false): Promise<number> {
     let aggregate: Aggregate<any>
     const where = this.filterWithActiveToNative(filter, includeAll)
