@@ -20,7 +20,6 @@ import {
   ValidationError,
   VersionRepositoryError
 } from '../../errors'
-import assert from 'assert'
 import { DateUtil } from '../../util/date-util'
 import { TimestampConfig } from './options/timestamp-config'
 
@@ -131,7 +130,12 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   protected static convertToIdOrFail (id: any): Types.ObjectId {
-    assert(ObjectId.isValid(id), new InvalidIdError())
+    if (!id) {
+      throw new MissingIdError()
+    }
+    if (!ObjectId.isValid(id)) {
+      throw new InvalidIdError()
+    }
     return ObjectId.convert(id)
   }
 
@@ -286,6 +290,15 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     return sortNative
   }
 
+  protected async findByIdNative (id: any): Promise<Document> {
+    const objectId = MongooseRepository.convertToIdOrFail(id)
+    try {
+      return this.doc.findById(objectId)
+    } catch (e) {
+      throw new RepositoryError('Erro ao obter registro por seu identificador: '.concat(e))
+    }
+  }
+
   fieldId (): string {
     return '_id'
   }
@@ -307,7 +320,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   async delete (id: V, includeAll = false): Promise<void> {
-    const doc = await this.doc.findById(MongooseRepository.convertToIdOrFail(id))
+    const doc = await this.findByIdNative(id)
 
     // @ts-ignore
     if (!includeAll && doc && doc.ativo === false) {
@@ -347,8 +360,9 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   async findById (id: V, populate?: string | string[], includeAll = false): Promise<U> {
+    const objectId = MongooseRepository.convertToIdOrFail(id)
     try {
-      const find = this.doc.findById(MongooseRepository.convertToIdOrFail(id))
+      const find = this.doc.findById(objectId)
 
       const doc = await this.preparePopulate(find, populate)
 
@@ -462,16 +476,13 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   async update (id: V, doc: U, populate?: string | string[], includeAll = false): Promise<U> {
-    if (!id) {
-      throw new MissingIdError()
-    }
-
-    const docDb = await this.doc.findById(MongooseRepository.convertToIdOrFail(id))
+    const docDb = await this.findByIdNative(id)
     // @ts-ignore
     if (!docDb || (!includeAll && docDb.ativo === false)) {
       throw new RegisterNotFoundError()
     }
 
+    // @ts-ignore
     return this.updateDoc(doc, docDb, populate)
   }
 
@@ -550,11 +561,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   async logicDelete (id: V): Promise<void> {
-    if (!id) {
-      throw new MissingIdError()
-    }
-
-    const docDb = await this.doc.findById(MongooseRepository.convertToIdOrFail(id))
+    const docDb = await this.findByIdNative(id)
     if (!docDb) {
       throw new RegisterNotFoundError()
     }
@@ -567,11 +574,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   async logicActive (id: V): Promise<void> {
-    if (!id) {
-      throw new MissingIdError()
-    }
-
-    const docDb = await this.doc.findById(MongooseRepository.convertToIdOrFail(id))
+    const docDb = await this.findByIdNative(id)
     if (!docDb) {
       throw new RegisterNotFoundError()
     }
