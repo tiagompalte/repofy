@@ -491,4 +491,15 @@ describe('Mongoose Repository', () => {
     expect(list).not.toBeNull()
     expect(list.length).toBe(3)
   })
+
+  test('deve atualizar vários documentos', async () => {
+    const filter = new Filter().or([Comparator.eq('ordem', 1), Comparator.eq('ordem', 4)])
+    const updated = await TestRepository.updateMany(filter, { nome: 'Atualizado' })
+
+    expect(updated).not.toBeNull()
+    expect(updated?.length).toBe(2)
+    for (const update of updated) {
+      expect(update.nome).toBe('Atualizado')
+    }
+  })
 })

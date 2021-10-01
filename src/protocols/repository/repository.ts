@@ -16,6 +16,7 @@ export interface Repository<U, T extends BaseEntity<U>> {
   insert(doc: T, populate?: string | string[]): Promise<T>
   insertMany(docs: T[], populate?: string | string[]): Promise<T[]>
   update(id: U, doc: T, populate?: string | string[], includeAll?: boolean): Promise<T>
+  updateMany(filter: Filter, doc: T, populate?: string | string[], includeAll?: boolean): Promise<T[]>
   delete(id: U, includeAll?: boolean): Promise<void>
   deleteMany(filter?: Filter, includeAll?: boolean): Promise<void>
   exists(filter?: Filter, includeAll?: boolean): Promise<boolean>
