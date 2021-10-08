@@ -1,11 +1,16 @@
 import { ComparatorOperatorEnum } from './comparator-operator-enum'
+import { OptionsFilter } from './options-filter'
+
+interface OptionsComparator extends OptionsFilter {
+  regex?: string
+}
 
 export class Comparator {
   private constructor (
     private readonly _operator: ComparatorOperatorEnum,
     private readonly _key: string,
     private readonly _value: any | any[],
-    private readonly _options?: string
+    private readonly _options?: OptionsComparator
   ) { }
 
   get operator (): ComparatorOperatorEnum {
@@ -35,21 +40,21 @@ export class Comparator {
     return this._value
   }
 
-  get options (): string {
+  get options (): OptionsComparator {
     return this._options
   }
 
-  private static readonly builder = (operator: ComparatorOperatorEnum, key: string, value: any | any[], options?: string): Comparator => {
+  private static readonly builder = (operator: ComparatorOperatorEnum, key: string, value: any | any[], options?: OptionsComparator): Comparator => {
     return new Comparator(operator, key, value, options)
   }
 
-  static eq = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.EQ, key, value)
+  static eq = (key: string, value: any, options?: OptionsFilter): Comparator => Comparator.builder(ComparatorOperatorEnum.EQ, key, value, options)
 
-  static eqId = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.EQ_ID, key, value)
+  static neq = (key: string, value: any, options?: OptionsFilter): Comparator => Comparator.builder(ComparatorOperatorEnum.NEQ, key, value, options)
 
-  static neq = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.NEQ, key, value)
+  static eqId = (value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.EQ_ID, null, value)
 
-  static neqId = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.NEQ_ID, key, value)
+  static neqId = (value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.NEQ_ID, null, value)
 
   static gt = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.GT, key, value)
 
@@ -61,15 +66,15 @@ export class Comparator {
 
   static lte = (key: string, value: any): Comparator => Comparator.builder(ComparatorOperatorEnum.LTE, key, value)
 
-  static in = (key: string, value: any[]): Comparator => Comparator.builder(ComparatorOperatorEnum.IN, key, value)
+  static in = (key: string, value: any[], options?: OptionsFilter): Comparator => Comparator.builder(ComparatorOperatorEnum.IN, key, value, options)
 
-  static inId = (key: string, value: any[]): Comparator => Comparator.builder(ComparatorOperatorEnum.IN_ID, key, value)
+  static inId = (value: any[]): Comparator => Comparator.builder(ComparatorOperatorEnum.IN_ID, null, value)
 
   static nin = (key: string, value: any[]): Comparator => Comparator.builder(ComparatorOperatorEnum.NIN, key, value)
 
   static exists = (key: string, value: boolean): Comparator => Comparator.builder(ComparatorOperatorEnum.EXISTS, key, value)
 
-  static regex = (key: string, value: any, options: string): Comparator => Comparator.builder(ComparatorOperatorEnum.REGEX, key, value, options)
+  static regex = (key: string, value: any, regex: string): Comparator => Comparator.builder(ComparatorOperatorEnum.REGEX, key, value, { regex })
 
   static and = (comparators: Comparator | Comparator[]): Comparator => Comparator.builder(ComparatorOperatorEnum.OP_AND, null, comparators)
 

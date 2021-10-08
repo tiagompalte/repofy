@@ -11,7 +11,8 @@ import {
   LogicalOperatorEnum,
   DirectionEnum,
   Repository,
-  Where
+  Where,
+  OptionsFilter
 } from './protocols'
 
 export {
@@ -21,5 +22,5 @@ export {
   timestampsPtBR, timestampsEn, TimestampConfig, MongooseRepository,
   // Protocols
   Comparator, Filter, Sort, ResultPaged, BaseEntity, ComparatorOperatorEnum, LogicalOperatorEnum, DirectionEnum,
-  Repository, Where
+  Repository, Where, OptionsFilter
 }

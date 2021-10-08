@@ -404,12 +404,18 @@ describe('Mongoose Repository', () => {
   })
 
   test('deve retornar a query correta passando o filter', () => {
+    const userId = ObjectId.generate()
     const id = ObjectId.generate()
+    const texto = 'campoTexto'
     const start = Math.random() * 100
     const end = start + Math.random() * 100
 
     const filter = new Filter()
-      .and(Comparator.eqId('user', id))
+      .and([
+        Comparator.eq('user', userId, { convertToObjectId: true }),
+        Comparator.eqId(id),
+        Comparator.eq('texto', texto)
+      ])
       .or([
         Comparator.between('start', start, end),
         Comparator.between('end', start, end),
@@ -421,7 +427,15 @@ describe('Mongoose Repository', () => {
     expect(query).toStrictEqual({
       $and: [{
         user: {
+          $eq: ObjectId.convert(userId)
+        }
+      }, {
+        _id: {
           $eq: ObjectId.convert(id)
+        }
+      }, {
+        texto: {
+          $eq: texto
         }
       }],
       $or: [{
