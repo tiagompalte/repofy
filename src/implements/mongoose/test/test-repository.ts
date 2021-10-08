@@ -29,7 +29,7 @@ interface TestDocument extends Document, Test {
 
 class TestRepository extends MongooseRepository<TestDocument, string, Test> implements Repository<string, Test> {
   formatFilterToWhereNative (filter: Filter): any {
-    return MongooseRepository.filterToNative(filter)
+    return this.filterToNative(filter)
   }
 }
 

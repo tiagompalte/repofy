@@ -170,30 +170,30 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     return filter
   }
 
-  protected static comparatorToWhere (comparator: Comparator): any {
+  protected comparatorToWhere (comparator: Comparator): any {
     switch (comparator.operator) {
       case ComparatorOperatorEnum.REGEX:
         return {
           [comparator.key]: {
             [ComparatorOperatorMongooseEnum.REGEX]: comparator.value,
-            $options: comparator.options
+            $options: comparator.options.regex
           }
         }
       case ComparatorOperatorEnum.EQ_ID:
         return {
-          [comparator.key]: {
+          [this.fieldId()]: {
             [ComparatorOperatorMongooseEnum.EQ]: ObjectId.convert(comparator.value)
           }
         }
       case ComparatorOperatorEnum.NEQ_ID:
         return {
-          [comparator.key]: {
+          [this.fieldId()]: {
             [ComparatorOperatorMongooseEnum.NEQ]: ObjectId.convert(comparator.value)
           }
         }
       case ComparatorOperatorEnum.IN_ID:
         return {
-          [comparator.key]: {
+          [this.fieldId()]: {
             [ComparatorOperatorMongooseEnum.IN]: comparator.value.map((v: any) => ObjectId.convert(v))
           }
         }
@@ -221,13 +221,19 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
           [LogicalOperatorMongooseEnum.NOT]: this.comparatorToWhere(comparator.value)
         }
       default:
-        return {
-          [comparator.key]: { [ComparatorOperatorMongooseEnum[comparator.operator]]: comparator.value }
+        if (comparator.options?.convertToObjectId) {
+          return {
+            [comparator.key]: { [ComparatorOperatorMongooseEnum[comparator.operator]]: ObjectId.convert(comparator.value) }
+          }
+        } else {
+          return {
+            [comparator.key]: { [ComparatorOperatorMongooseEnum[comparator.operator]]: comparator.value }
+          }
         }
     }
   }
 
-  protected static comparatorToNative (comparator: Comparator | Comparator[]): any[] {
+  protected comparatorToNative (comparator: Comparator | Comparator[]): any[] {
     const where: any[] = []
     if (comparator && Array.isArray(comparator)) {
       for (const comp of comparator) {
@@ -243,7 +249,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     return where
   }
 
-  protected static filterToNative (filter: Filter): any {
+  protected filterToNative (filter: Filter): any {
     const where: any = {}
     if (filter) {
       for (const command of filter.command) {
@@ -271,7 +277,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   }
 
   protected filterWithActiveToNative (filter: Filter, includeAll: boolean): any {
-    let where = MongooseRepository.filterToNative(filter)
+    let where = this.filterToNative(filter)
     if (!includeAll) {
       where = this.filterWithActive(where)
     }
@@ -498,7 +504,7 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
   async upsert (doc: U, filter?: Filter, populate?: string | string[]): Promise<U> {
     let docDb: T = null
     if (filter) {
-      const where = MongooseRepository.filterToNative(filter)
+      const where = this.filterToNative(filter)
       docDb = await this.doc.findOne(where)
     }
 
