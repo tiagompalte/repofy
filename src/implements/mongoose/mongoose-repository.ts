@@ -83,10 +83,10 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
     const list = MongooseRepository.convertStringToArray(populate)
 
     for (const pop of list) {
-      await find.populate(MongooseRepository.populateOptions(pop.split('.')))
+      await find.populate(MongooseRepository.populateOptions(pop.split('.'))).clone()
     }
 
-    return find
+    return find.clone()
   }
 
   protected static convertObject (doc: any): any {
