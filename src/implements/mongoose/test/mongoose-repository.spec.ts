@@ -405,6 +405,7 @@ describe('Mongoose Repository', () => {
 
   test('deve retornar a query correta passando o filter', () => {
     const userId = ObjectId.generate()
+    const empresaId = ObjectId.generate()
     const id = ObjectId.generate()
     const texto = 'campoTexto'
     const start = Math.random() * 100
@@ -414,7 +415,8 @@ describe('Mongoose Repository', () => {
       .and([
         Comparator.eq('user', userId, { convertToObjectId: true }),
         Comparator.eqId(id),
-        Comparator.eq('texto', texto)
+        Comparator.eq('texto', texto),
+        Comparator.in('empresa', [empresaId], { convertToObjectId: true })
       ])
       .or([
         Comparator.between('start', start, end),
@@ -436,6 +438,10 @@ describe('Mongoose Repository', () => {
       }, {
         texto: {
           $eq: texto
+        }
+      }, {
+        empresa: {
+          $in: [empresaId]
         }
       }],
       $or: [{
