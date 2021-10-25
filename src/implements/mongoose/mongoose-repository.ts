@@ -197,6 +197,12 @@ export abstract class MongooseRepository<T extends Document, V, U extends BaseEn
             [ComparatorOperatorMongooseEnum.IN]: comparator.value.map((v: any) => ObjectId.convert(v))
           }
         }
+      case ComparatorOperatorEnum.IN:
+        return {
+          [comparator.key]: {
+            [ComparatorOperatorMongooseEnum.IN]: comparator.values
+          }
+        }
       case ComparatorOperatorEnum.BETWEEN:
         return {
           [comparator.key]: {
